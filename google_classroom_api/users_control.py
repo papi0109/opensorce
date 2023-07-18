@@ -109,7 +109,6 @@ def join_or_del(csid:str, csname:str, controls:str, value:str):
         for i in controls:
             try:
                 if i in compare:
-                    print(f"Match! {i} can't join")
                     continue
                 else:
                     teacher  = {'userId': i}
@@ -132,7 +131,6 @@ def join_or_del(csid:str, csname:str, controls:str, value:str):
         for i in controls:
             try:
                 if i in compare:
-                    print("Match!")
                     continue
                 else:
                     student  = {'userId': i}
