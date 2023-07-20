@@ -1,0 +1,4 @@
+changeType,joined,cn,sn,userPassword,description
+add,eigyo,sample_user01,sample_user01,P@ssw0rd,サンプル ユーザー1
+modify,engineer,sample_user02,sample_user02,P@ssw0rd,サンプル ユーザー2
+delete,jimu,sample_user03,,,
