@@ -57,8 +57,6 @@ while True:
         ouCount += 1
     except:
         break
-    else:
-        break
 
 if not ouchoice:
     msg = "Configure file read error: setou not found"
