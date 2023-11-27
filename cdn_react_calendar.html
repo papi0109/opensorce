@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Papi's ReactCDN Demo CalendarApp</title>
+    <link
+	    href="https://fonts.googleapis.com/icon?family=Material+Icons"
+	    rel="stylesheet"
+    />
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script> 
+    <script> // React用CSS
+        const basicStyle = {
+            border:       '1px solid #e8e8e8',
+            borderRadius: '50%',
+            display:      'inline-block',
+            height:       '50px', 
+            width:        '50px', 
+        }
+        const buttonStyle = {
+            border:       '1px solid #666666',
+            borderRadius: '6px',
+            cursor:       'pointer',
+            fontWeight:   'bold',
+            height:       '30px',
+        }
+    </script>
+    <style>
+        a {
+            text-decoration: none;
+        }
+        body {
+            background: #eff2eb;
+            font-size: 16px;
+            margin: 12px;
+        }
+        button {
+            background: #fff;
+        }
+        button:hover {
+            background: #e8e8e8;
+        }
+        button:active {
+            border: 0;
+        }
+        .close_button {
+            border:0;
+            border-bottom: 2px solid #546247;
+            border-top:    1px solid #546247;
+            border-right:  1px solid #546247;
+            border-left:   1px solid #546247;
+            border-radius: 4px; 
+            cursor:        pointer;
+            font-weight:   bold; 
+            padding:       4px; 
+        }
+        .close_button:active{
+            border: 0;
+        }
+        h1 {
+            border-radius: 10px;
+            background:  #546247;
+            color:       #fff;
+            font-size:     18px;
+            font-weight:   100;
+            margin:        auto;
+            padding:       4px;
+            width:         390px;
+        }
+        .material-icons {
+            vertical-align: -3px;
+            font-size:      18px;
+        }
+        .title {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="title">
+        <h1>
+            <i>Papi's ReactCDN Demo CalendarApp</i>
+        </h1>
+    </div>
+    <div id="root"></div>
+    <p style="text-align: center; height: 40px;">
+        <button 
+            class="close_button"
+            onclick="window.close()">Close</button>
+    </p>
+    <div style="font-size: 12px;">
+        <p>
+            <a href="https://papishouse.net/" target="_blank" rel="noopener noreferrer">
+                <span class="material-icons">house</span>
+                <i>Go to Papi's House</i>
+            </a>
+        </p>
+        <p>
+            <a href="https://github.com/papi0109/opensorce" target="_blank" rel="noopener noreferrer">
+                <span class="material-icons">terminal</span>
+                <i>Go to Papi's Github</i>
+            </a>
+        </p>
+        <p>
+            <a href="https://twitter.com/nekokunaround30" target="_blank" rel="noopener noreferrer">
+                <span class="material-icons">public</span>
+                <i>Go to Papi's X</i>
+            </a>
+        </p>
+        <p>
+            <a href="https://papishouse.net/contact/" target="_blank" rel="noopener noreferrer">
+                <span class="material-icons">contact_support</span>
+                <i>Contact Form</i>
+            </a>
+        </p>
+    </div>
+</body>
+
+<!-- ここからReact -->
+<script type="text/babel"> // 曜日・日付の表示コンポーネント
+    const WeekCell = ( { date, toggle, holiday } ) => {
+        const items = [];
+
+        for(let i=0; i<date.length; i++){
+            const domStyle = (date[i] === 'Sun') ? 
+                { ...basicStyle, background: '#E83929', color: '#fff', fontWeight: 'bold', fontSize: '14px' }
+
+                : ( (date[i] === 'Sat') ? 
+                    { ...basicStyle, background: '#0067C0', color: '#fff', fontWeight: 'bold', fontSize: '14px' } 
+
+                : ( ( !(date[i].toString().match(/[0-9]/) ) ) ?
+                    { ...basicStyle, background: '#eff2eb', fontWeight: 'bold', fontSize: '14px' }
+
+                : (  (i === 6) && ( toggle.some(value => value === date[i]) ) ?
+                    { ...basicStyle, background: '#b8b8b8', color: '#666666' }
+                
+                : ( (i === 6) ?
+                    { ...basicStyle, background: '#DAE3F2' }
+
+                : ( ( toggle.some(value => value === date[i]) ?
+                    { ...basicStyle, background: '#b8b8b8', color: '#666666' }
+                
+                : ( ( ( i === 0 ) || ( holiday.some(value => value === date[i]) ) ?
+                    { ...basicStyle, background: '#FEE3D7' }
+
+                : { ...basicStyle, background: '#fff' }
+
+                ) ) ) ) ) ) ) );
+
+            items.push(<div style={ domStyle }>
+                    <p><i>{ date[i] }</i></p>
+                </div>)
+        }
+
+        return (
+            <div style={ {width: '400px'} }>{ items }</div>
+        )
+        
+    }
+</script>
+
+<script type="text/babel"> // カレンダーの親コンポーネント
+    const Calendar = ( {now, holidays} ) =>{
+        const nowMonth     = now.getMonth() + 1;
+        const nowYear      = now.getFullYear();
+        const allData      = getDateList(now, holidays);
+        const dateList     = allData[0];
+        const toggleList   = allData[1];
+        const holidayList  = allData[2];
+        const weekNameList = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        const monthAlias   = {
+            '1': 'January',
+            '2': 'February',
+            '3': 'March',
+            '4': 'April',
+            '5': 'May',
+            '6': 'June',
+            '7': 'July',
+            '8': 'August',
+            '9': 'September',
+            '10': 'October',
+            '11': 'November',
+            '12': 'December',
+        }
+
+        return (
+            <div style={ {width: '400px' } }>
+                <p style={ {textAlign: 'center', fontWeight: 'bold'} }>
+                    <div 
+                        style={ {display: 'inline-block', borderBottom: '3px solid #000'} }
+                    ><i style={ {fontSize: '12px'} }>{ nowYear } / { nowMonth }</i><br></br>
+                    <i style={ {fontSize: '16px'} }>{ monthAlias[nowMonth.toString()] }</i>
+                    </div>
+                </p>
+                <div>
+                    <WeekCell date={ weekNameList } toggle={ [] } holiday={ [] } />
+                    <WeekCell date={ dateList[0] } toggle={ toggleList[0] } holiday={ holidayList[0] } />
+                    <WeekCell date={ dateList[1] } toggle={ toggleList[1] } holiday={ holidayList[1] } />
+                    <WeekCell date={ dateList[2] } toggle={ toggleList[2] } holiday={ holidayList[2] } />
+                    <WeekCell date={ dateList[3] } toggle={ toggleList[3] } holiday={ holidayList[3] } />
+                    <WeekCell date={ dateList[4] } toggle={ toggleList[4] } holiday={ holidayList[4] } />
+                    <WeekCell date={ dateList[5] } toggle={ toggleList[5] } holiday={ holidayList[5] } />
+                </div>
+            </div>
+        );
+    }
+
+    const getDateList = (now, holidays) => {
+        
+        const getEndDay      = (targetTime) => Number( String( targetTime ).split(' ')[2] );
+        const selectYear     = now.getFullYear()
+        const selectMonth    = now.getMonth() + 1;
+        const selectMonthEnd = new Date(selectYear, selectMonth, 0);
+        const selectMonthDay = selectMonthEnd.getDay();
+        const selectEndNum   = getEndDay( selectMonthEnd );
+
+        const nextMonthEnd   = new Date(now.getFullYear(), now.getMonth() + 2, 0);
+        const nextMonthDay   = nextMonthEnd.getDay();
+        const nextEndNum     = getEndDay( nextMonthEnd );
+
+        const beforeMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+        const beforeMonthDay = beforeMonthEnd.getDay();
+        const beforeEndNum   = getEndDay( beforeMonthEnd );
+
+        let exp          = beforeEndNum;
+        let startdate    = beforeEndNum - beforeMonthDay;
+        let lastSwitch   = false;
+        let toggle       = true;
+        let weekCount    = 0;
+        let countUpDay   = 1;
+
+        let childList    = [];
+        let parentList   = [];
+
+        let toggleList   = [];
+        let toggleChild  = [];
+
+        let holidayList  = [];
+        let holidayChild = [];
+
+        for (let i=0; i<42; i++){
+            const month     = (selectMonth < 9) ? `0${selectMonth}` : selectMonth.toString();
+            const day       = (startdate < 9) ? `0${startdate}` : startdate.toString();
+            const strFormat = `${selectYear}-${month}-${day}`;
+            if (holidays.some(value => value === strFormat)) holidayChild.push(startdate);
+
+            switch(true){
+                case ( (startdate > exp) && !(lastSwitch) ):
+                    exp        = selectEndNum;
+                    startdate  = 1;
+                    lastSwitch = true;
+                    toggle     = !toggle;
+                    break
+
+                case ( (startdate > exp) && lastSwitch ):
+                    exp       = nextEndNum;
+                    startdate = 1;
+                    toggle    = !toggle;
+                    break
+            }
+
+            if (countUpDay === selectMonthEnd){
+                countUpDay = 1;
+
+            }else{
+                countUpDay++;
+            }
+                    
+            if (weekCount === 6){
+                weekCount = 0;
+                childList.push(startdate)
+                if (toggle) toggleChild.push(startdate);
+
+                parentList.push(childList)
+                toggleList.push(toggleChild)
+                holidayList.push(holidayChild)
+
+                toggleChild = []
+                childList    = []
+                holidayChild = []
+
+            }else{
+                weekCount++;
+                childList.push(startdate)
+                if (toggle) toggleChild.push(startdate);
+            }
+
+            startdate++;
+        }
+        
+        return [ parentList, toggleList, holidayList ]
+    }
+</script>
+
+<script type="text/babel">
+    const App = () => {
+        const useState = React.useState;
+        const useEffect = React.useEffect;
+        const year = new Date(new Date).getFullYear();
+
+        const [now, setNow] = useState( new Date );
+        const [holidays, setHolidays] = useState([]);
+
+        useEffect(() => { // 祝日の取得（外部API）
+            fetch('https://holidays-jp.github.io/api/v1/date.json')
+                .then(response => response.json())
+                .then(data => {
+                    setHolidays( Object.keys(data) )
+                }
+            )
+        }, [] );
+
+        return (
+            <div align='center'>
+                <div style={ { background: '#fff', borderRadius: '10px', display: 'inline-block' } }>
+                    <Calendar now={now} holidays={holidays} />
+                    <div style={ {width: '350px', paddingTop: '12px', marginLeft: '16px', marginRight: '16px'} }>
+                        <span style={ {float: 'left', paddingRight: '4px'} }>
+                            <button 
+                                style={ { ...buttonStyle, width: '50px' } }
+                                onClick={ () => setNow( new Date( now.setMonth( now.getMonth() - 2 ) ) ) }
+                                title="-2 month"
+                            >◀◀</button>
+                        </span>
+
+                        <span style={ {float: 'left'} }>
+                            <button 
+                                style={ { ...buttonStyle, width: '30px' } }
+                                onClick={ () => setNow( new Date( now.setMonth( now.getMonth() - 1 ) ) ) }
+                                title="-1 month"
+                            >◀</button>
+                        </span>
+
+                        <span style={ { float: 'center' } }>
+                            <button 
+                                style={ { ...buttonStyle, width: '65px' } }
+                                onClick={ () => setNow( new Date ) }
+                            ><span style={ { fontSize: '14px' } }><i>Now</i></span></button>
+                        </span>
+
+                        <span style={ { float: 'right', paddingLeft: '4px' } }>
+                            <button 
+                                style={ { ...buttonStyle, width: '50px' } }
+                                onClick={ () => setNow( new Date( now.setMonth( now.getMonth() + 2 ) ) ) }
+                                title="+2 month"
+                            >▶▶</button>
+                        </span>
+
+                        <span style={ { float: 'right' } }>
+                            <button 
+                                style={ { ...buttonStyle, width: '30px' } }
+                                onClick={ () => setNow( new Date( now.setMonth( now.getMonth() + 1 ) ) ) }
+                                title="+1 month"
+                            >▶</button>
+                        </span>
+                    </div>
+                    <p style={ {color: 'red', fontSize: '14px'} }>
+                        ※祝日は {year - 1} ～ {year + 1}年 までのものが表示されます。
+                    </p>
+                </div>
+
+            </div>
+        );
+    }
+</script>
+
+<script type="text/babel">
+    ReactDOM.render(
+        <React.StrictMode>
+            <App />
+        </React.StrictMode>,
+          document.getElementById('root')
+    );
+</script>
